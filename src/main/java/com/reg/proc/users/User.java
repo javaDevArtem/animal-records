@@ -1,6 +1,6 @@
 package com.reg.proc.users;
 
-import com.reg.proc.pets.PetDTO;
+import com.reg.proc.pets.Pet;
 
 import java.util.List;
 
@@ -9,6 +9,6 @@ public record User(
         String name,
         String email,
         Integer age,
-        List<PetDTO> pets
+        List<Pet> pets
 ) {
 }

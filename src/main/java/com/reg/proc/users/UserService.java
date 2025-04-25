@@ -2,12 +2,8 @@ package com.reg.proc.users;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -21,11 +17,11 @@ public class UserService {
         this.idCounter = new AtomicLong();
     }
 
-    public User creteUser(User user) {
+    public User createUser(User user) {
         if (user.id() != null) {
-            throw new IllegalArgumentException("Id should be provided");
+            throw new IllegalArgumentException("Id for user should not be provided");
         }
-        if (user.pets() != null || !user.pets().isEmpty()) {
+        if (user.pets() != null && !user.pets().isEmpty()) {
             throw new IllegalArgumentException("User pets must be empty");
         }
 
@@ -59,10 +55,13 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        if (userMap.containsKey(id)) {
+        if (!userMap.containsKey(id)) {
             throw new NoSuchElementException("No such user with id=%s".formatted(id));
         }
         return userMap.get(id);
     }
 
+    public List<User> getAllUsers() {
+        return userMap.values().stream().toList();
+    }
 }

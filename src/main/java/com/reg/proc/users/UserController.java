@@ -1,25 +1,30 @@
 package com.reg.proc.users;
 
+import com.reg.proc.pets.PetDtoConverter;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private UserService userService;
-    private UserDtoConverter userDtoConverter;
+    private final UserService userService;
+    private final UserDtoConverter userDtoConverter;
+    private final PetDtoConverter petDtoConverter;
 
 
-    public UserController(UserService userService, UserDtoConverter userDtoConverter) {
+    public UserController(UserService userService,
+                          UserDtoConverter userDtoConverter,
+                          PetDtoConverter petDtoConverter) {
         this.userService = userService;
         this.userDtoConverter = userDtoConverter;
+        this.petDtoConverter = petDtoConverter;
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(UserDto userDto) {
-        User user = userService.creteUser(userDtoConverter.toUser(userDto));
+    public ResponseEntity<UserDto> createUser(@RequestBody @Validated UserDto userDto) {
+        User user = userService.createUser(userDtoConverter.toUser(userDto));
         return ResponseEntity.ok(userDtoConverter.toDto(user));
     }
 
@@ -37,13 +42,14 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto, @PathVariable Long userId) {
+    public ResponseEntity<UserDto> updateUser(@RequestBody @Validated UserDto userDto, @PathVariable Long userId) {
         var userToUpdate = new User(
                 userId,
                 userDto.name(),
                 userDto.email(),
                 userDto.age(),
-                userDto.pets()
+                userDto.pets().stream().map(petDtoConverter::toPet).toList()
+
         );
         var updatedUser = userService.updateUser(userToUpdate);
         return ResponseEntity.ok(userDtoConverter.toDto(updatedUser));
